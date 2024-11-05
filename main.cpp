@@ -8,6 +8,18 @@ const char abecele[] = {
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 };
 
+int rask_raides_numeri(char raide)
+{
+    for (int i = 0; i < size(abecele); i++)
+    {
+        if (abecele[i] == raide)
+        {
+            return i;
+        }   
+    }
+    return -1;
+}
+
 string sugeneruok_rakta(string tekstas, string vart_raktas)
 {
     int x = tekstas.size();
@@ -32,11 +44,34 @@ string sugeneruok_rakta(string tekstas, string vart_raktas)
     return naujas_raktas;
 }
 
+string sifravimas(string tekstas, string raktas)
+{
+    string sifras;
+
+    for (int i = 0; i < tekstas.size(); i++)
+    {
+        int p = rask_raides_numeri(tekstas[i]);
+        int k = rask_raides_numeri(raktas[i]);
+
+        if (p == -1)
+        {
+            sifras.push_back(' ');
+            continue;
+        }
+
+        int r = (p + k) % 26;
+        sifras.push_back(abecele[r]);
+    }
+    
+    return sifras;
+}
+
 int main()
 {
     string tekstas;
     string raktas;
-
+    string atsakimas;
+    
     cout << "Tekstas:";
     getline(cin, tekstas);
     cout << "Raktas:";
@@ -49,16 +84,13 @@ int main()
     }
 
     raktas = sugeneruok_rakta(tekstas, raktas);
+    atsakimas = sifravimas(tekstas, raktas);
 
     cout << endl;
+    
     cout << "Tekstas:" << tekstas << endl;
     cout << "Raktas:" << raktas << endl;
-
-    // string atsakimas = tekstas;
-    // for (int i = 0; i < tekstas.size(); ++i)
-    // {
-    //
-    // }
+    cout << "Atsakimas:" << atsakimas << endl;
 
     return 0;
 }
