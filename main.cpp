@@ -25,33 +25,40 @@ void eilutesFiltravimas(string& str)
     }
 }
 
-int raidesKodas(char raide)
+int simbolioKodas_ABC(char simbolis)
 {
-    if (raide == ' ') return -1; // Tarpas
+    if (simbolis == ' ') return -1; // Tarpas
 
-    if (!isalpha(raide)) return -2; // Nezinomas simbolis
-    raide = toupper(raide);
+    if (!isalpha(simbolis)) return -2; // Nezinomas simbolis
+    simbolis = toupper(simbolis);
 
     for (int i = 0; i < N_ABC; i++)
     {
-        if (ABC[i] == raide)
+        if (ABC[i] == simbolis)
             return i;
     }
 
     return -2;
 }
 
+int simbolioKodas_ASCII(char simbolis)
+{
+    if (simbolis == ' ') return -1; // Tarpas
+    if (!isalpha(simbolis)) return -2; // Nezinomas simbolis
+    return static_cast<int>(toupper(simbolis));
+}
+
 string raktoGeneravimas(const string& tekstas, string& pradinisRaktas)
 {
-    int tekstoIlgis = tekstas.size();
-    int raktoIlgis = pradinisRaktas.size();
+    int tekstoIlgis = tekstas.length();
+    int raktoIlgis = pradinisRaktas.length();
 
     eilutesFiltravimas(pradinisRaktas);
     cout << "Pradinis raktas: " << pradinisRaktas << '\n';
     
     string sugeneruotasRaktas;
 
-    if (pradinisRaktas.size() < tekstoIlgis)
+    if (pradinisRaktas.length() < tekstoIlgis)
     {
         for (int i = 0; i < tekstoIlgis; ++i)
         {
@@ -70,10 +77,10 @@ string sifravimas_ABC(const string& tekstas, const string& raktas)
 {
     string sifras;
 
-    for (int i = 0; i < tekstas.size(); i++)
+    for (int i = 0; i < tekstas.length(); i++)
     {
-        int p = raidesKodas(tekstas[i]);
-        int k = raidesKodas(raktas[i]);
+        int p = simbolioKodas_ABC(tekstas[i]);
+        int k = simbolioKodas_ABC(raktas[i]);
 
         if (p == -1)
         {
@@ -89,35 +96,70 @@ string sifravimas_ABC(const string& tekstas, const string& raktas)
         int e = (p + k) % N_ABC;
         sifras.push_back(ABC[e]);
     }
-
     return sifras;
 }
 
 string desifravimas_ABC(const string& sifras, const string& raktas)
 {
-    string tekstas;
+    string pradinisTekstas;
 
-    for (int i = 0; i < sifras.size(); i++)
+    for (int i = 0; i < sifras.length(); i++)
     {
-        int e = raidesKodas(sifras[i]);
-        int k = raidesKodas(raktas[i]);
+        int e = simbolioKodas_ABC(sifras[i]);
+        int k = simbolioKodas_ABC(raktas[i]);
 
         if (e == -1)
         {
-            tekstas.push_back(' ');
+            pradinisTekstas.push_back(' ');
             continue;
         }
         else if (e == -2)
         {
-            tekstas.push_back('_');
+            pradinisTekstas.push_back('_');
             continue;
         }
 
         int d = (e - k + N_ABC) % N_ABC;
-        tekstas.push_back(ABC[d]);
+        pradinisTekstas.push_back(ABC[d]);
     }
 
-    return tekstas;
+    return pradinisTekstas;
+}
+
+string sifravimas_ASCII(const string &tekstas, const string &raktas)
+{
+    string sifras;
+
+    for (int i = 0, j = 0; i < tekstas.length(); ++i)
+    {
+        char c = tekstas[i];
+        if (c >= 'a' && c <= 'z')
+            c += 'A' - 'a';
+        else if (c < 'A' || c > 'Z')
+            continue;
+        sifras += (c + raktas[j] - 2 * 'A') % 26 + 'A'; // added 'A' to bring it in range of ASCII alphabet [ 65-90 | A-Z ]
+        j = (j + 1) % raktas.length();
+    }
+
+    return sifras;
+}
+
+string desifravimas_ASCII(const string& sifras, const string& raktas)
+{
+    string pradinisTekstas;
+
+    for (int i = 0, j = 0; i < sifras.length(); ++i)
+    {
+        char c = sifras[i];
+        if (c >= 'a' && c <= 'z')
+            c += 'A' - 'a';
+        else if (c < 'A' || c > 'Z')
+            continue;
+        pradinisTekstas += (c - raktas[j] + 26) % 26 + 'A'; // added 'A' to bring it in range of ASCII alphabet [ 65-90 | A-Z ]
+        j = (j + 1) % raktas.length();
+    }
+
+    return pradinisTekstas;
 }
 
 void read(string& str, const string& msg)
@@ -135,6 +177,7 @@ bool strEmpty(const string& str1, const string& str2)
 int main()
 {
     int mp = -1; // Meniu pasirinkimas
+
     string tekstas;
     string raktas;
     string atsakimas;
@@ -194,6 +237,41 @@ int main()
 
             break;
         case 2:
+            // ASCII sifravimas, desifravimas
+            cout << '\n';
+
+            read(tekstas, "Pradinis tekstas");
+            read(raktas, "Slaptas raktas");
+
+            if (strEmpty(tekstas, raktas))
+            {
+                cout << "Nebuvo įvestas tekstas arba raktas.\n";
+                break;
+            }
+
+            raktas = raktoGeneravimas(tekstas, raktas);
+            atsakimas = sifravimas_ASCII(tekstas, raktas);
+
+            cout << "\nSugeneruotas raktas: " << raktas << '\n';
+            cout << "\nAtsakimas: " << atsakimas << '\n';
+
+            // Desifravimas ASCII
+            cout << '\n';
+
+            read(tekstas, "Šifras");
+            read(raktas, "Raktas");
+
+            if (strEmpty(tekstas, raktas))
+            {
+                cout << "Nebuvo įvestas tekstas arba raktas.\n";
+                break;
+            }
+
+            raktas = raktoGeneravimas(tekstas, raktas);
+            atsakimas = desifravimas_ASCII(tekstas, raktas);
+
+            cout << "\nPanaudotas raktas: " << raktas << '\n';
+            cout << "\nAtsakimas: " << atsakimas << '\n';
 
             break;
         default:
