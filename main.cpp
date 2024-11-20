@@ -1,140 +1,206 @@
 #include <iostream>
 #include <string>
+#include <cctype>
+#include <limits>
 
 using namespace std;
 
 const char ABC[] = {
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 };
-const int N = size(ABC);
+const int N_ABC = size(ABC);
 
-int raidesNumeris(char raide)
+void eilutesFiltravimas(string& str)
 {
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < str.length(); i++)
     {
-        if (ABC[i] == raide)
-        {
-            return i;
-        }
+        char simbolis = str[i];
+        if (simbolis == ' ') continue;
+
+        if (isalpha(simbolis))
+            str[i] = toupper(simbolis);
+        else
+            str[i] = '_';
     }
-    return -1;
 }
 
-string raktoApdorojimas(const string& tekstas, const string& pradinisRaktas)
+int raidesKodas(char raide)
 {
-    int x = tekstas.size();
-    int r = pradinisRaktas.size();
+    if (raide == ' ') return -1; // Tarpas
 
-    string naujas_raktas;
+    if (!isalpha(raide)) return -2; // Nezinomas simbolis
+    raide = toupper(raide);
 
-    if (pradinisRaktas.size() < x)
+    for (int i = 0; i < N_ABC; i++)
     {
-        for (int i = 0; i < x; ++i)
+        if (ABC[i] == raide)
+            return i;
+    }
+
+    return -2;
+}
+
+string raktoGeneravimas(const string& tekstas, string& pradinisRaktas)
+{
+    int tekstoIlgis = tekstas.size();
+    int raktoIlgis = pradinisRaktas.size();
+
+    eilutesFiltravimas(pradinisRaktas);
+    cout << "Pradinis raktas: " << pradinisRaktas << '\n';
+    
+    string sugeneruotasRaktas;
+
+    if (pradinisRaktas.size() < tekstoIlgis)
+    {
+        for (int i = 0; i < tekstoIlgis; ++i)
         {
-            int n = i % r; // Raides indeksas
+            int n = i % raktoIlgis; // Raides indeksas
             char raide = pradinisRaktas[n];
-            naujas_raktas.push_back(raide);
+            sugeneruotasRaktas.push_back(raide);
         }
     }
     else
-    {
         return pradinisRaktas;
-    }
 
-    return naujas_raktas;
+    return sugeneruotasRaktas;
 }
 
-string sifravimas(const string& tekstas, const string& raktas)
+string sifravimas_ABC(const string& tekstas, const string& raktas)
 {
-    string sifruotasTekstas;
+    string sifras;
 
     for (int i = 0; i < tekstas.size(); i++)
     {
-        int p = raidesNumeris(tekstas[i]);
-        int k = raidesNumeris(raktas[i]);
+        int p = raidesKodas(tekstas[i]);
+        int k = raidesKodas(raktas[i]);
 
         if (p == -1)
         {
-            sifruotasTekstas.push_back(' ');
+            sifras.push_back(' ');
             continue;
         }
-
-        int e = (p + k) % N;
-        sifruotasTekstas.push_back(ABC[e]);
+        else if (p == -2)
+        {
+            sifras.push_back('_');
+            continue;
+        }
+        
+        int e = (p + k) % N_ABC;
+        sifras.push_back(ABC[e]);
     }
 
-    return sifruotasTekstas;
+    return sifras;
 }
 
-string desifravimas(string uzsifruotasTekstas, string raktas)
+string desifravimas_ABC(const string& sifras, const string& raktas)
 {
-    string desifruotasTekstas;
+    string tekstas;
 
-    for (int i = 0; i < uzsifruotasTekstas.size(); i++)
+    for (int i = 0; i < sifras.size(); i++)
     {
-        int e = raidesNumeris(uzsifruotasTekstas[i]);
-        int k = raidesNumeris(raktas[i]);
+        int e = raidesKodas(sifras[i]);
+        int k = raidesKodas(raktas[i]);
 
         if (e == -1)
         {
-            desifruotasTekstas.push_back(' ');
+            tekstas.push_back(' ');
+            continue;
+        }
+        else if (e == -2)
+        {
+            tekstas.push_back('_');
             continue;
         }
 
-        int d = (e - k + N) % N;
-        desifruotasTekstas.push_back(ABC[d]);
+        int d = (e - k + N_ABC) % N_ABC;
+        tekstas.push_back(ABC[d]);
     }
 
-    return desifruotasTekstas;
+    return tekstas;
+}
+
+void read(string& str, const string& msg)
+{
+    cout << msg << ": ";
+    getline(cin, str);
+}
+
+bool strEmpty(const string& str1, const string& str2)
+{
+    if (str1.empty() || str2.empty()) return true;
+    return false;
 }
 
 int main()
 {
+    int mp = -1; // Meniu pasirinkimas
     string tekstas;
     string raktas;
+    string atsakimas;
 
-    // Sifravimas
-
-    cout << "Tekstas:";
-    getline(cin, tekstas);
-    cout << "Raktas:";
-    getline(cin, raktas);
-
-    if (raktas.size() == 0 || tekstas.size() == 0)
+    while (mp != 0)
     {
-        cout << "Klaida: Nebuvo įvestas tekstas arba raktas!\n";
-        exit(1);
+        cout << "\nPasirinkite metodą, kaip šifruoti tekstą:\n";
+        cout << "1. Abėcėlė\n";
+        cout << "2. ASCII\n";
+
+        cout << ">> ";
+        cin >> mp;
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (mp)
+        {
+        case 0:
+            cout << "Išeinama...\n";
+            break;
+        case 1: 
+            // Sifravimas su abecele
+            cout << '\n';
+
+            read(tekstas, "Pradinis tekstas");
+            read(raktas, "Slaptas raktas");
+
+            if (strEmpty(tekstas, raktas))
+            {
+                cout << "Nebuvo įvestas tekstas arba raktas.\n";
+                break;
+            }
+
+            raktas = raktoGeneravimas(tekstas, raktas);
+            atsakimas = sifravimas_ABC(tekstas, raktas);
+
+            cout << "\nSugeneruotas raktas: " << raktas << '\n';
+            cout << "\nAtsakimas: " << atsakimas << '\n';
+
+            // Desifravimas
+            cout << '\n';
+
+            read(tekstas, "Šifras");
+            read(raktas, "Raktas");
+
+            if (strEmpty(tekstas, raktas))
+            {
+                cout << "Nebuvo įvestas tekstas arba raktas.\n";
+                break;
+            }
+
+            raktas = raktoGeneravimas(tekstas, raktas);
+            atsakimas = desifravimas_ABC(tekstas, raktas);
+
+            cout << "\nPanaudotas raktas: " << raktas << '\n';
+            cout << "\nAtsakimas: " << atsakimas << '\n';
+
+            break;
+        case 2:
+
+            break;
+        default:
+            cout << "Neteisingas pasirinkimas.\n";
+            break;
+        }
     }
-
-    raktas = raktoApdorojimas(tekstas, raktas);
-    string atsakimas = sifravimas(tekstas, raktas);
-
-    cout << '\n';
-    cout << "Tekstas:" << tekstas << '\n';
-    cout << "Raktas:" << raktas << '\n';
-    cout << "Atsakimas:" << atsakimas << '\n';
-
-    // Desifravimas
-
-    cout << "Užšifruotas tekstas:";
-    getline(cin, tekstas);
-    cout << "Raktas:";
-    getline(cin, raktas);
-
-    if (raktas.size() == 0 || tekstas.size() == 0)
-    {
-        cout << "Klaida: Nebuvo įvestas tekstas arba raktas!\n";
-        exit(1);
-    }
-
-    raktas = raktoApdorojimas(tekstas, raktas);
-    atsakimas = desifravimas(tekstas, raktas);
-
-    cout << '\n';
-    cout << "Tekstas:" << tekstas << '\n';
-    cout << "Raktas:" << raktas << '\n';
-    cout << "Atsakimas:" << atsakimas << '\n';
 
     return 0;
 }
