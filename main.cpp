@@ -126,40 +126,40 @@ string desifravimas_ABC(const string& sifras, const string& raktas)
     return pradinisTekstas;
 }
 
-string sifravimas_ASCII(const string &tekstas, const string &raktas)
+string vigenere_ascii(const string &text, const string &key, bool encrypt = true)
 {
-    string sifras;
+    string result;
 
-    for (int i = 0, j = 0; i < tekstas.length(); ++i)
+    int keyLength = key.length();
+    int charRange = 126 - 32 + 1; // ASCII characters from 32 to 126
+
+    for (size_t i = 0; i < text.length(); ++i)
     {
-        char c = tekstas[i];
-        if (c >= 'a' && c <= 'z')
-            c += 'A' - 'a';
-        else if (c < 'A' || c > 'Z')
+        char currentChar = text[i];
+        char keyChar = key[i % keyLength];
+
+        if (currentChar < 32 || currentChar > 126)
+        {
+            // Ignore characters outside the range
+            result += currentChar;
             continue;
-        sifras += (c + raktas[j] - 2 * 'A') % 26 + 'A'; // added 'A' to bring it in range of ASCII alphabet [ 65-90 | A-Z ]
-        j = (j + 1) % raktas.length();
+        }
+
+        int offset = keyChar - 32;
+
+        if (encrypt)
+        {
+            currentChar = 32 + (currentChar - 32 + offset) % charRange;
+        }
+        else
+        {
+            currentChar = 32 + (currentChar - 32 - offset + charRange) % charRange;
+        }
+
+        result += currentChar;
     }
 
-    return sifras;
-}
-
-string desifravimas_ASCII(const string& sifras, const string& raktas)
-{
-    string pradinisTekstas;
-
-    for (int i = 0, j = 0; i < sifras.length(); ++i)
-    {
-        char c = sifras[i];
-        if (c >= 'a' && c <= 'z')
-            c += 'A' - 'a';
-        else if (c < 'A' || c > 'Z')
-            continue;
-        pradinisTekstas += (c - raktas[j] + 26) % 26 + 'A'; // added 'A' to bring it in range of ASCII alphabet [ 65-90 | A-Z ]
-        j = (j + 1) % raktas.length();
-    }
-
-    return pradinisTekstas;
+    return result;
 }
 
 void read(string& str, const string& msg)
@@ -184,9 +184,10 @@ int main()
 
     while (mp != 0)
     {
-        cout << "\nPasirinkite metodą, kaip šifruoti tekstą:\n";
-        cout << "1. Abėcėlė\n";
-        cout << "2. ASCII\n";
+        cout << "\nPasirinkite pageidaujamą funkciją:\n";
+        cout << "[1] Šifravimas su abėcėle\n";
+        cout << "[2] Šifravimas per ASCII kodus\n";
+        cout << "[0] Išeiti iš programos\n";
 
         cout << ">> ";
         cin >> mp;
@@ -239,10 +240,11 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                raktas = raktoGeneravimas(tekstas, raktas);
-                atsakimas = sifravimas_ASCII(tekstas, raktas);
+                // raktas = raktoGeneravimas(tekstas, raktas);
+                // atsakimas = sifravimas_ASCII(tekstas, raktas);
+                atsakimas = vigenere_ascii(tekstas, raktas, 1);
 
-                cout << "\nSugeneruotas raktas: " << raktas << '\n';
+                // cout << "\nSugeneruotas raktas: " << raktas << '\n';
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
@@ -254,10 +256,11 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                raktas = raktoGeneravimas(tekstas, raktas);
-                atsakimas = desifravimas_ASCII(tekstas, raktas);
+                // raktas = raktoGeneravimas(tekstas, raktas);
+                // atsakimas = desifravimas_ASCII(tekstas, raktas);
+                atsakimas = vigenere_ascii(tekstas, raktas, 0);
 
-                cout << "\nPanaudotas raktas: " << raktas << '\n';
+                // cout << "\nPanaudotas raktas: " << raktas << '\n';
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
