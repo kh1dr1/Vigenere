@@ -205,17 +205,14 @@ int main()
             read(tekstas, "Pradinis tekstas");
             read(raktas, "Slaptas raktas");
 
-            if (strEmpty(tekstas, raktas))
+            if (!strEmpty(tekstas, raktas))
             {
-                cout << "Nebuvo įvestas tekstas arba raktas.\n";
-                break;
+                raktas = raktoGeneravimas(tekstas, raktas);
+                atsakimas = sifravimas_ABC(tekstas, raktas);
+
+                cout << "\nSugeneruotas raktas: " << raktas << '\n';
+                cout << "\nAtsakimas: " << atsakimas << '\n';
             }
-
-            raktas = raktoGeneravimas(tekstas, raktas);
-            atsakimas = sifravimas_ABC(tekstas, raktas);
-
-            cout << "\nSugeneruotas raktas: " << raktas << '\n';
-            cout << "\nAtsakimas: " << atsakimas << '\n';
 
             // Desifravimas
             cout << '\n';
@@ -223,17 +220,14 @@ int main()
             read(tekstas, "Šifras");
             read(raktas, "Raktas");
 
-            if (strEmpty(tekstas, raktas))
+            if (!strEmpty(tekstas, raktas))
             {
-                cout << "Nebuvo įvestas tekstas arba raktas.\n";
-                break;
+                raktas = raktoGeneravimas(tekstas, raktas);
+                atsakimas = desifravimas_ABC(tekstas, raktas);
+
+                cout << "\nPanaudotas raktas: " << raktas << '\n';
+                cout << "\nAtsakimas: " << atsakimas << '\n';
             }
-
-            raktas = raktoGeneravimas(tekstas, raktas);
-            atsakimas = desifravimas_ABC(tekstas, raktas);
-
-            cout << "\nPanaudotas raktas: " << raktas << '\n';
-            cout << "\nAtsakimas: " << atsakimas << '\n';
 
             break;
         case 2:
@@ -243,17 +237,14 @@ int main()
             read(tekstas, "Pradinis tekstas");
             read(raktas, "Slaptas raktas");
 
-            if (strEmpty(tekstas, raktas))
+            if (!strEmpty(tekstas, raktas))
             {
-                cout << "Nebuvo įvestas tekstas arba raktas.\n";
-                break;
+                raktas = raktoGeneravimas(tekstas, raktas);
+                atsakimas = sifravimas_ASCII(tekstas, raktas);
+
+                cout << "\nSugeneruotas raktas: " << raktas << '\n';
+                cout << "\nAtsakimas: " << atsakimas << '\n';
             }
-
-            raktas = raktoGeneravimas(tekstas, raktas);
-            atsakimas = sifravimas_ASCII(tekstas, raktas);
-
-            cout << "\nSugeneruotas raktas: " << raktas << '\n';
-            cout << "\nAtsakimas: " << atsakimas << '\n';
 
             // Desifravimas ASCII
             cout << '\n';
@@ -261,17 +252,14 @@ int main()
             read(tekstas, "Šifras");
             read(raktas, "Raktas");
 
-            if (strEmpty(tekstas, raktas))
+            if (!strEmpty(tekstas, raktas))
             {
-                cout << "Nebuvo įvestas tekstas arba raktas.\n";
-                break;
+                raktas = raktoGeneravimas(tekstas, raktas);
+                atsakimas = desifravimas_ASCII(tekstas, raktas);
+
+                cout << "\nPanaudotas raktas: " << raktas << '\n';
+                cout << "\nAtsakimas: " << atsakimas << '\n';
             }
-
-            raktas = raktoGeneravimas(tekstas, raktas);
-            atsakimas = desifravimas_ASCII(tekstas, raktas);
-
-            cout << "\nPanaudotas raktas: " << raktas << '\n';
-            cout << "\nAtsakimas: " << atsakimas << '\n';
 
             break;
         default:
