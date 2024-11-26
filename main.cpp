@@ -11,119 +11,60 @@ const char ABC[] = {
 };
 const int N_ABC = size(ABC);
 
-void eilutesFiltravimas(string& str)
+int alphaCharCode(char ch)
 {
-    for (int i = 0; i < str.length(); i++)
+    if (isalpha(ch)) // Abeceles raide
     {
-        char simbolis = str[i];
-        if (simbolis == ' ') continue;
+        // Konvertuojame i didziasias raides
+        ch = toupper(ch);
 
-        if (isalpha(simbolis))
-            str[i] = toupper(simbolis);
-        else
-            str[i] = '_';
-    }
-}
-
-int simbolioKodas_ABC(char simbolis)
-{
-    if (simbolis == ' ') return -1; // Tarpas
-
-    if (!isalpha(simbolis)) return -2; // Nezinomas simbolis
-    simbolis = toupper(simbolis);
-
-    for (int i = 0; i < N_ABC; i++)
-    {
-        if (ABC[i] == simbolis)
-            return i;
-    }
-
-    return -2;
-}
-
-int simbolioKodas_ASCII(char simbolis)
-{
-    if (simbolis == ' ') return -1; // Tarpas
-    if (!isalpha(simbolis)) return -2; // Nezinomas simbolis
-    return static_cast<int>(toupper(simbolis));
-}
-
-string raktoGeneravimas(const string& tekstas, string& pradinisRaktas)
-{
-    int tekstoIlgis = tekstas.length();
-    int raktoIlgis = pradinisRaktas.length();
-
-    eilutesFiltravimas(pradinisRaktas);
-    cout << "Pradinis raktas: " << pradinisRaktas << '\n';
-    
-    string sugeneruotasRaktas;
-
-    if (pradinisRaktas.length() < tekstoIlgis)
-    {
-        for (int i = 0; i < tekstoIlgis; ++i)
+        // Randame simbolio (raides) indeksa abeceles masyve
+        for (int i = 0; i < N_ABC; i++)
         {
-            int n = i % raktoIlgis; // Raides indeksas
-            char raide = pradinisRaktas[n];
-            sugeneruotasRaktas.push_back(raide);
+            if (ABC[i] == ch) return i;
         }
     }
     else
-        return pradinisRaktas;
-
-    return sugeneruotasRaktas;
-}
-
-string sifravimas_ABC(const string& tekstas, const string& raktas)
-{
-    string sifras;
-
-    for (int i = 0; i < tekstas.length(); i++)
     {
-        int p = simbolioKodas_ABC(tekstas[i]);
-        int k = simbolioKodas_ABC(raktas[i]);
-
-        if (p == -1)
-        {
-            sifras.push_back(' ');
-            continue;
-        }
-        else if (p == -2)
-        {
-            sifras.push_back('_');
-            continue;
-        }
-        
-        int e = (p + k) % N_ABC;
-        sifras.push_back(ABC[e]);
-    }
-    return sifras;
-}
-
-string desifravimas_ABC(const string& sifras, const string& raktas)
-{
-    string pradinisTekstas;
-
-    for (int i = 0; i < sifras.length(); i++)
-    {
-        int e = simbolioKodas_ABC(sifras[i]);
-        int k = simbolioKodas_ABC(raktas[i]);
-
-        if (e == -1)
-        {
-            pradinisTekstas.push_back(' ');
-            continue;
-        }
-        else if (e == -2)
-        {
-            pradinisTekstas.push_back('_');
-            continue;
-        }
-
-        int d = (e - k + N_ABC) % N_ABC;
-        pradinisTekstas.push_back(ABC[d]);
+        return -1; // Nezinomas simbolis
     }
 
-    return pradinisTekstas;
+    return -1;
+}
+
+string vigenere_alpha(const string& text, const string& key, bool encrypt = true)
+{
+    string result;
+
+    int keyLength = key.length();
+
+    for (size_t i = 0; i < text.length(); i++)
+    {
+        int t = alphaCharCode(text[i]); // text
+        int k = alphaCharCode(key[i % keyLength]); // key
+
+        if (t == -1 || k == -1)
+        {
+            // Ignoruojame nezinomus simbolius
+            result.push_back(text[i]);
+            continue;
+        }
+
+        int index;
+
+        if (encrypt)
+        {
+            index = (t + k) % N_ABC;
+        }
+        else
+        {
+            index = (t - k + N_ABC) % N_ABC;
+        }
+
+        result.push_back(ABC[index]);
+    }
+
+    return result;
 }
 
 string vigenere_ascii(const string &text, const string &key, bool encrypt = true)
@@ -208,10 +149,7 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                raktas = raktoGeneravimas(tekstas, raktas);
-                atsakimas = sifravimas_ABC(tekstas, raktas);
-
-                cout << "\nSugeneruotas raktas: " << raktas << '\n';
+                atsakimas = vigenere_alpha(tekstas, raktas);
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
@@ -223,10 +161,7 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                raktas = raktoGeneravimas(tekstas, raktas);
-                atsakimas = desifravimas_ABC(tekstas, raktas);
-
-                cout << "\nPanaudotas raktas: " << raktas << '\n';
+                atsakimas = vigenere_alpha(tekstas, raktas, false);
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
@@ -240,11 +175,7 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                // raktas = raktoGeneravimas(tekstas, raktas);
-                // atsakimas = sifravimas_ASCII(tekstas, raktas);
-                atsakimas = vigenere_ascii(tekstas, raktas, 1);
-
-                // cout << "\nSugeneruotas raktas: " << raktas << '\n';
+                atsakimas = vigenere_ascii(tekstas, raktas);
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
@@ -256,11 +187,7 @@ int main()
 
             if (!strEmpty(tekstas, raktas))
             {
-                // raktas = raktoGeneravimas(tekstas, raktas);
-                // atsakimas = desifravimas_ASCII(tekstas, raktas);
-                atsakimas = vigenere_ascii(tekstas, raktas, 0);
-
-                // cout << "\nPanaudotas raktas: " << raktas << '\n';
+                atsakimas = vigenere_ascii(tekstas, raktas, false);
                 cout << "\nAtsakimas: " << atsakimas << '\n';
             }
 
